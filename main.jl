@@ -9,7 +9,7 @@ function parse_commandline()
         "-N"
             help = "number of samples to generate"
             arg_type = Int
-            default = 1024
+            default = 4096
         "-o"
             help = "output file path"
             default = "samples.dat"
@@ -27,7 +27,7 @@ function printkey(key, fmt)
     if !(fmt in ("hex", "bin"))
         println("""Unrecognized key printing format "$(args["s"])" """)
     end
-    
+
     println(stderr, """Secret key:""")
 
     if fmt == "hex"
@@ -51,6 +51,7 @@ function main()
     else
         println("Generating samples...")
         samples = gensamples(s, args["N"])
+        #samples = papersoln(P, args["N"])
         arraytofile(samples, args["o"])
         println("""Samples written to file '$(args["o"])'""")
     end

@@ -1,12 +1,13 @@
 
-using LinearAlgebra
+include("gf2.jl")
+
 using Random
 
 """
     readprogram(filename)
 
 Read an X-program from the file filename;
-return a BitArray containing *its transpose* (for efficiency).
+return a GF2Array containing *its transpose* (for efficiency).
 """
 function readprogram(filename)
     lines = eachline(filename)
@@ -14,7 +15,7 @@ function readprogram(filename)
     nc = parse(Int, iterate(lines)[1][6:end])
 
     # store it transposed for column-major efficiency
-    rtn = BitArray(undef, (nc, nr))
+    rtn = GF2Array(undef, (nc, nr))
 
     for (i,line) in enumerate(lines)
         if (i > nr)
@@ -57,23 +58,26 @@ end
 """
     papersoln(P, samples)
 
-Given a program P as a BitArray and a desired
+Given a program P as a GF2Array and a desired
 number of samples nsamples, generate samples by
 the classical method from the original paper, with
 a success probability of 0.75 per sample.
 """
 function papersoln(P, nsamples)
     n = size(P)[1]
+    ncol = size(P)[2]
+
     rtn = falses((n, nsamples))
     for i in 1:nsamples
-        d = bitrand(n)
-        e = bitrand(n)
-
-        for p in eachcol(P)
-            if ((dot(d, p)%2) + (dot(e, p)%2) < 2)
-                rtn[:,i] .⊻= p
+        d = GF2Array(bitrand(n))
+        e = GF2Array(bitrand(n))
+        tmp = GF2Array(falses(n))
+        for colidx in 1:ncol
+            if (unsafe_dotcol(d, P, colidx) + unsafe_dotcol(e, P, colidx) < 2)
+                unsafe_addcol!(tmp, P, colidx)
             end
         end
+        rtn[:, i] .= tmp
     end
     rtn
 end
@@ -125,32 +129,34 @@ yielding a correct system of equations.
 """
 function gensystem(P, maxiters)
     n = size(P)[1]
-    system = falses((n+1, n))
+    ncol = size(P)[2]
 
-    d = bitrand(n)
+    system = GF2Array(falses((n+1, n)))
+
+    d = GF2Array(bitrand(n))
 
     rank = 0
     for i in 1:maxiters
 
         # generate a sample
-        sample = falses(n)
-        e = bitrand(n)
-        for p in eachcol(P)
-            if ((dot(d, p)%2) + (dot(e, p)%2) < 2)
-                sample .⊻= p
+        sample = GF2Array(falses(n))
+        e = GF2Array(bitrand(n))
+        for colidx in 1:ncol
+            if (unsafe_dotcol(d, P, colidx) + unsafe_dotcol(e, P, colidx) < 2)
+                unsafe_addcol!(sample, P, colidx)
             end
         end
 
         # add a 1 to the end
-        sample = [sample; [true]]
+        sample = GF2Array([sample; [true]])
 
         # eliminate on it until it can fill a row that is empty
-        for rowi in 1:n
-            if sample[rowi]
-                if system[rowi, rowi] # there is already data here, orthogonalize
-                    sample .⊻= system[:, rowi]
+        for colidx in 1:n
+            if sample[colidx]
+                if system[colidx, colidx] # there is already data here, orthogonalize
+                    addcol!(sample, system, colidx)
                 else # we found a new linearly independent row!
-                    system[:, rowi] = sample
+                    system[:, colidx] .= sample
                     rank += 1
                     break
                 end
@@ -173,14 +179,17 @@ by extracting the sub-matrix corresponding to s and checking that
 as a generator matrix its codewords are -1 or 0 mod 4
 """
 function checkkey(P, s)
+    s = GF2Array(s)
+
     Ns = 40
     n = size(P)[1]
+    ncol = size(P)[2]
     for i in 1:Ns
-        d = bitrand(n)
+        d = GF2Array(bitrand(n))
         tot = 0
-        for p in eachcol(P)
-            if (dot(s, p)%2) == 1
-                tot += dot(d, p)%2
+        for colidx in 1:ncol
+            if (unsafe_dotcol(s, P, colidx))
+                tot += unsafe_dotcol(d, P, colidx)
             end
         end
         wtmod4 = tot%4
@@ -208,7 +217,7 @@ function extractkey(P; maxit=100)
         # check if any of those keys were right
         for key in eachrow(candidate_keys)
             if checkkey(P, key)
-                return key
+                return GF2Array(key)
             end
         end
 
@@ -268,12 +277,12 @@ function gensamples(s, nsamples)
     # how often to include orthogonal samples so that the resulting fraction is right
     threshold = 1/(cos(pi/8)^2) - 1
 
-    rtn = BitArray(undef, (n, nsamples))
+    rtn = GF2Array(undef, (n, nsamples))
 
     count = 0
     while (count < nsamples)
-        sample = bitrand(n)
-        if (dot(sample, s)%2 == 1 || rand()<threshold)
+        sample = GF2Array(bitrand(n))
+        if (dot(sample, s) || rand()<threshold)
             count += 1
             rtn[:, count] = sample
         end
