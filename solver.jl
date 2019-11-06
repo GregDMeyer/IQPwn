@@ -204,9 +204,11 @@ end
     extractkey(P, maxit=100)
 
 Given an X-program as a BitArray, extract its secret key
-Returns a tuple of the key and the number of iterations to find it
+Returns a tuple of the key and the number of candidate keys tested
 """
 function extractkey(P; maxit=100, sysmaxit=1.2)
+
+    keystried = 0
     for i in 1:maxit
         # generate a system of equations that should generate our key w/ 50% prob
         system = gensystem(P, floor(size(P)[1]*sysmaxit))
@@ -216,9 +218,10 @@ function extractkey(P; maxit=100, sysmaxit=1.2)
 
         # check if any of those keys were right
         for key in eachrow(candidate_keys)
+            keystried += 1
             key = GF2Array(key)
             if checkkey(P, key)
-                return GF2Array(key), i
+                return GF2Array(key), keystried
             end
         end
 
@@ -257,7 +260,7 @@ function vectohex(v)
         for (j, b) in enumerate(v[i:i+7])
             char |= UInt8(b << (8-j))
         end
-        s *= "$(string(char, base=16))"
+        s *= "$(string(char, base=16, pad=2))"
     end
     s
 end
