@@ -14,7 +14,7 @@ function parse_commandline()
             help = "output file path"
             default = "samples.dat"
         "-s"
-            help = """print formatted secret vector s instead of generating samples.\noptions are "hex" or "bin" """
+            help = """print formatted secret vector s instead of generating samples.\noptions are "base64" or "bin" """
         "program"
             help = "path to the X-program file"
             required = true
@@ -24,14 +24,14 @@ function parse_commandline()
 end
 
 function printkey(key, fmt)
-    if !(fmt in ("hex", "bin"))
+    if !(fmt in ("base64", "bin"))
         println("""Unrecognized key printing format "$(args["s"])" """)
     end
 
     println(stderr, """Secret key:""")
 
-    if fmt == "hex"
-        println("$(vectohex(key))")
+    if fmt == "base64"
+        println("$(vectob64(key))")
     else
         println("$(vectobin(key))")
     end

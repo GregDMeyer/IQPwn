@@ -2,6 +2,7 @@
 include("gf2.jl")
 
 using Random
+using Base64
 
 """
     readprogram(filename)
@@ -245,24 +246,24 @@ function vectobin(v)
 end
 
 """
-    vectohex(v)
+    vectob64(v)
 
-Convert a BitVector v to a hex string
+Convert a BitVector v to a base64 string
 """
-function vectohex(v)
+function vectob64(v)
     # pad the vector to a multiple of 8 bits
     npad = 7 - ((length(v)-1) % 8)
     v = [falses(npad); v]
 
-    s = ""
+    s = Array{UInt8}(undef, (length(v)÷8,))
     for i in 1:8:length(v)
-        char = zero(UInt8)
+        sidx = (i-1)÷8 + 1
+        s[sidx] = 0
         for (j, b) in enumerate(v[i:i+7])
-            char |= UInt8(b << (8-j))
+            s[sidx] |= UInt8(b << (8-j))
         end
-        s *= "$(string(char, base=16, pad=2))"
     end
-    s
+    base64encode(s)
 end
 
 """
