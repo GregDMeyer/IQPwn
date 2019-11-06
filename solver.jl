@@ -97,15 +97,16 @@ function backsolve(system)
     solvemat = copy(system)
 
     # eliminate back up the chain
-    for rowi in n:-1:2
+    for rowi in n:-1:1
         # if there is not already a row here, we need to guess
         if !(solvemat[rowi, rowi])
+
             # put a 1 in this slot
             solvemat[rowi, rowi] = true
 
             # append guesses to the end of the matrix
             s = copy(solvemat[n+1:end, :])
-            s[n+1:end, rowi] .= true
+            s[:, rowi] .= true
             solvemat = [solvemat; s]
         end
 
@@ -179,8 +180,6 @@ by extracting the sub-matrix corresponding to s and checking that
 as a generator matrix its codewords are -1 or 0 mod 4
 """
 function checkkey(P, s)
-    s = GF2Array(s)
-
     Ns = 40
     n = size(P)[1]
     ncol = size(P)[2]
@@ -205,24 +204,28 @@ end
     extractkey(P, maxit=100)
 
 Given an X-program as a BitArray, extract its secret key
+Returns a tuple of the key and the number of iterations to find it
 """
-function extractkey(P; maxit=100)
+function extractkey(P; maxit=100, sysmaxit=1.2)
     for i in 1:maxit
         # generate a system of equations that should generate our key w/ 50% prob
-        system = gensystem(P, size(P)[1]*5)
+        system = gensystem(P, floor(size(P)[1]*sysmaxit))
 
         # solve for the vectors satisfying that system
         candidate_keys = backsolve(system)
 
         # check if any of those keys were right
         for key in eachrow(candidate_keys)
+            key = GF2Array(key)
             if checkkey(P, key)
-                return GF2Array(key)
+                return GF2Array(key), i
             end
         end
 
-        # if none of those keys were right, we try again
+        # if none of those keys were right, we got unlucky with d
+        # try again
     end
+    throw(ErrorException("max iterations reached"))
 end
 
 """
