@@ -44,7 +44,7 @@ function main()
     P = readprogram(args["program"])
 
     println(stderr, "Extracting secret key...")
-    s,_ = extractkey(P)
+    s, _, _ = extractkey(P)
 
     if !isnothing(args["s"])
         printkey(s, args["s"])

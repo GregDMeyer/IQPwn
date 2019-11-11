@@ -168,6 +168,30 @@ function unsafe_addcol!(a::GF2Vector, b::GF2Matrix, i::Int)
 end
 
 """
+    addcol!(A, i, j)
+
+In-place addition of column j of A to column i of the same matrix
+"""
+function addcol!(A::GF2Matrix, i::Int, j::Int)
+    @boundscheck i > size(b)[2] && throw(BoundsError("column index i=$i greater than number of columns $(size(b)[2])"))
+    @boundscheck j > size(b)[2] && throw(BoundsError("column index j=$j greater than number of columns $(size(b)[2])"))
+    unsafe_addcol!(A, b, i)
+end
+
+"""
+    unsafe_addcol!(A, i, j)
+"""
+function unsafe_addcol!(A::GF2Matrix, i::Int, j::Int)
+    nchk = size(A.chunks)[1]
+    ichunkoffset = (i-1)*nchk
+    jchunkoffset = (j-1)*nchk
+    @inbounds for chunkidx in 1:nchk
+        A.chunks[chunkidx + ichunkoffset] ⊻= A.chunks[chunkidx + jchunkoffset]
+    end
+    return A
+end
+
+"""
 Constructor from BitArray
 """
 GF2Array(A::AbstractArray{<:Any,N}) where {N} = GF2Array{N}(A)

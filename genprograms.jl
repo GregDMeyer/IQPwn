@@ -2,6 +2,8 @@
 This file contains routines for generating X-programs as described in [Shepherd and Bremner 2009]
 """
 
+include("gf2.jl")
+
 """
     jacobisymbol(n, k)
 
@@ -43,7 +45,7 @@ end
 
 Full Gauss-Jordan elimination of BitArray A and its covector over GF2
 """
-function eliminatecolumns(A, cov)
+function eliminatecolumns(A::GF2Matrix, cov)
     nrows = size(A)[1]
     ncols = size(A)[2]
 
@@ -67,19 +69,20 @@ function eliminatecolumns(A, cov)
 
         # swap it into the appropriate spot
         if pivcol != rank
-            tmp = A[:, pivcol]
-            A[:, pivcol] = A[:, rank]
-            A[:, rank] = tmp
+            # XOR swap
+            unsafe_addcol!(A, pivcol, rank)
+            unsafe_addcol!(A, rank, pivcol)
+            unsafe_addcol!(A, pivcol, rank)
 
-            tmpc = cov[pivcol]
+            tmp = cov[pivcol]
             cov[pivcol] = cov[rank]
-            cov[rank] = tmpc
+            cov[rank] = tmp
         end
 
         # now eliminate
         for colidx in rank+1:ncols
             if A[pivrow, colidx]
-                A[:, colidx] .⊻= A[:, rank]
+                unsafe_addcol!(A, colidx, rank)
                 cov[rank] ⊻= cov[colidx]
             end
         end
@@ -91,7 +94,7 @@ function eliminatecolumns(A, cov)
         pivrow = findfirst(A[:, pivcol])
         for colidx in pivcol-1:-1:1
             if A[pivrow, colidx]
-                A[:, colidx] .⊻= A[:, pivcol]
+                unsafe_addcol!(A, colidx, pivcol)
                 cov[pivcol] ⊻= cov[colidx]
             end
         end
@@ -110,8 +113,8 @@ function genprogram(q; sortrows=true)
     nrows = 2q
     ncols = k+1
 
-    P = BitArray(undef, (nrows, ncols))
-    key = BitArray(undef, (ncols,))
+    P = GF2Array(undef, (nrows, ncols))
+    key = GF2Array(undef, (ncols,))
 
     # first column
     P[1:q, 1]     .= true
@@ -127,7 +130,7 @@ function genprogram(q; sortrows=true)
     end
 
     # the rest of the rows are random bits
-    P[q+1:end, 2:end] = bitrand(q, k)
+    P[q+1:end, 2:end] .= bitrand(q, k)
 
     # the key has all falses for the rest of the columns
     key[2:end] .= false

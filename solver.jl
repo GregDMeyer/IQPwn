@@ -222,7 +222,7 @@ function extractkey(P; maxit=100, sysmaxit=1.2)
             keystried += 1
             key = GF2Array(key)
             if checkkey(P, key)
-                return GF2Array(key), keystried
+                return GF2Array(key), keystried, size(candidate_keys)[1]
             end
         end
 
