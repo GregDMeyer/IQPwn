@@ -1,6 +1,7 @@
 
+include("solver/solver.jl")
+
 using ArgParse
-include("solver.jl")
 
 function parse_commandline()
     s = ArgParseSettings()

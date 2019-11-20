@@ -2,7 +2,9 @@
 This file contains routines for generating X-programs as described in [Shepherd and Bremner 2009]
 """
 
-include("gf2.jl")
+include("../solver/gf2.jl")
+
+using Primes
 
 """
     jacobisymbol(n, k)
@@ -109,6 +111,9 @@ This function performs the same operations as the C-code provided at
 quantumchallenge.wordpress.com to generate X-programs.
 """
 function genprogram(q; sortrows=true)
+    @assert isprime(q)
+    @assert q%8 == 7
+
     k = (q+1)÷2
     nrows = 2q
     ncols = k+1
