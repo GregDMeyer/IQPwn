@@ -44,6 +44,8 @@ def plot_candkeys(ax, ns, candkeys):
     ax.plot(ns, candkeys,
             #color='k',
             color='C2',
+            marker='o',
+            markersize=2,
             #linestyle='--',
             label='# cand. keys')
 
