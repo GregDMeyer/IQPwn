@@ -2,9 +2,12 @@
 
 **tl;dr** This repository implements the algorithms in [this paper TODO](TODO) for forging quantum data to pass the "test of quantumness" from [this paper](https://royalsocietypublishing.org/doi/10.1098/rspa.2008.0443).
 
+![](/home/greg/Dropbox/Berkeley_lab/IQP/code/julia/media/iqpwn.gif) 
+(... slightly embellished for dramatic effect)
+
 ---
 
-In [[SB2009]](https://royalsocietypublishing.org/doi/10.1098/rspa.2008.0443), a cryptographic protocol is presented for testing the quantum capabilities of an untrusted party. The authors show that under certain cryptographic assumptions, a prover can only pass the interactive test if they are IQP-capable (roughly, that they can run quantum circuits). The code in this repository breaks those assumptions. In particular, this repository contains an implementation of the algorithms described  [here TODO](TODO) for extracting the protocol's secret key. It also contains timing code to generate the plots in the paper.
+In [[SB2009]](https://royalsocietypublishing.org/doi/10.1098/rspa.2008.0443), a cryptographic protocol is presented for testing the quantum capabilities of an untrusted party. The authors show that under certain cryptographic assumptions, a prover can only pass the interactive test if they are IQP-capable (roughly, if they can run quantum circuits). The code in this repository breaks those assumptions. In particular, this repository contains an implementation of the algorithms described  [here TODO](TODO) for extracting the protocol's secret key. It also contains timing code to generate the plots in the paper.
 
 ## Requirements
 
@@ -13,8 +16,6 @@ In [[SB2009]](https://royalsocietypublishing.org/doi/10.1098/rspa.2008.0443), a 
     - Primes
     - ArgParse 
  - Optional: Python 3 + matplotlib for generating timing plots
- 
-To install the Julia packages, in Julia run `import Pkg; Pkg.add("<packagename>")`
 
 ## Breaking the IQP protocol
 
@@ -22,21 +23,29 @@ The authors of [SB2009] posed an online challenge, where the winner would be the
 
 Their code, which can be used to generate test instances of the protocol and also contains their challenge program, is located at [quantumchallenges.wordpress.com](quantumchallenges.wordpress.com). When compiled and run, that code can be used to generate text files containing input data for IQP challenges.
 
-If you have generated such a file (call it `test_program`), you can use the code in this repository in a couple ways.
+If you have generated such a file (call it `test_challenge`), you can use the code in this repository in a couple ways.
 
 **To generate samples passing the verification test, run**
 
-``` TODO ```
+```bash
+julia IQPwn.jl test_challenge
+```
 
-**Note**: It appears there is an error in their verification code. It counts samples that are *non*-orthogonal to the secret vector, instead of orthogonal to it (despite the fact that their paper asks for orthogonal samples). To generate non-orthogonal samples and get satisfying output from their verification procedure, add the `--non_orth` flag to the command above. TODO
+**Note**: It appears there is an error in their verification code. It counts samples that are *non*-orthogonal to the secret vector, instead of orthogonal to it (despite the fact that their paper asks for orthogonal samples). To generate non-orthogonal samples and get satisfying output from their verification procedure, add the `--non_orth` flag to the command above.
 
 **To output the secret key in base64, run**
 
-`TODO`
+```bash
+julia IQPwn.jl test_challenge -s base64
+```
 
-For binary output instead of base64, use `-s bin`.
+To output a binary string instead of base64, use `-s bin`.
 
-**For all options**, simply run `julia IQPwn.jl --help`.
+**To print all options**, simply run 
+
+```bash
+julia IQPwn.jl --help
+```
 
 ## Generating timing plots
 

@@ -1,3 +1,4 @@
+#!/usr/bin/env julia
 
 include("solver/solver.jl")
 
@@ -16,6 +17,9 @@ function parse_commandline()
             default = "samples.dat"
         "-s"
             help = """print formatted secret vector s instead of generating samples.\noptions are "base64" or "bin" """
+        "--non_orth"
+            help = "generate samples non-orthogonal, instead of orthogonal, to s"
+            action = :store_true
         "program"
             help = "path to the X-program file"
             required = true
@@ -51,8 +55,7 @@ function main()
         printkey(s, args["s"])
     else
         println("Generating samples...")
-        samples = gensamples(s, args["N"])
-        #samples = papersoln(P, args["N"])
+        samples = gensamples(s, args["N"], orth=!args["non_orth"])
         arraytofile(samples, args["o"])
         println("""Samples written to file '$(args["o"])'""")
     end

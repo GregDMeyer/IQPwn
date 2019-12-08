@@ -267,13 +267,13 @@ function vectob64(v)
 end
 
 """
-    gensamples(s, nsamples)
+    gensamples(s, nsamples, orth=true)
 
 Generate nsamples bitstrings such that ~85%
 of them are non-orthogonal to a secret string s. Returns
 a BitArray for which the columns are the samples
 """
-function gensamples(s, nsamples)
+function gensamples(s, nsamples; orth=true)
     # length of samples
     n = size(s)[1]
 
@@ -289,7 +289,7 @@ function gensamples(s, nsamples)
     count = 0
     while (count < nsamples)
         sample = GF2Array(bitrand(n))
-        if (dot(sample, s) || rand()<threshold)
+        if (dot(sample, s) == !orth || rand()<threshold)
             count += 1
             rtn[:, count] = sample
         end
