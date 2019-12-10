@@ -98,7 +98,7 @@ def plot_data(reg, hard, ns, candkeys):
 
     plt.tight_layout()
 
-    #plt.savefig('../../paper/candkeys.pdf')
+    #plt.savefig('../../../paper/candkeys.pdf')
 
     plt.show()
 

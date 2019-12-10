@@ -23,11 +23,15 @@ def plot_data(ns, ts, errlows, errhighs):
 
     ax.plot(ns, ts,
             marker='o',
-            markersize=4,
+            linestyle='',
+            markersize=5,
+            color='dodgerblue',
+            mec="k",
+            markeredgewidth=1,
             label='Solve time')
 
     ax.fill_between(ns, errlows, errhighs,
-                    color='C0',
+                    color='dodgerblue',
                     alpha=0.3,
                     linewidth=0,
                     #label=r'$1^{\mathrm{st}}-3^{\mathrm{rd}}$ quartile'
@@ -38,7 +42,8 @@ def plot_data(ns, ts, errlows, errhighs):
     ax.plot(ns, [c*n**2 for n in ns],
             color='k',
             linestyle='--',
-            label=r'$\propto n^2$')
+            label=r'$\propto n^2$',
+            zorder=1)
 
     ax.set_xscale('log')
     ax.set_yscale('log')
