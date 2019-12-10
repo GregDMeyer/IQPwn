@@ -42,18 +42,22 @@ Write a BitArray bits to filename, in the format
 that can be read by the challenge code to check
 samples.
 """
-function arraytofile(bits, filename)
+function arraytofile(bits, filename::AbstractString)
     open(filename, write=true) do f
-        write(f, "nr = $(size(bits)[2])\n")
-        write(f, "nc = $(size(bits)[1])\n")
-        for row in eachcol(bits) # we are transposed
-            for c in row
-                write(f, "$(Int(c)) ")
-            end
-            write(f, "\n")
-        end
-        write(f, "=====\n\n")
+        arraytofile(bits, f)
     end
+end
+
+function arraytofile(bits, f)
+    write(f, "nr = $(size(bits)[2])\n")
+    write(f, "nc = $(size(bits)[1])\n")
+    for row in eachcol(bits) # we are transposed
+        for c in row
+            write(f, "$(Int(c)) ")
+        end
+        write(f, "\n")
+    end
+    write(f, "=====\n\n")
 end
 
 """
@@ -74,7 +78,7 @@ function papersoln(P, nsamples)
         e = GF2Array(bitrand(n))
         tmp = GF2Array(falses(n))
         for colidx in 1:ncol
-            if (unsafe_dotcol(d, P, colidx) + unsafe_dotcol(e, P, colidx) < 2)
+            if (unsafe_dotcol(d, P, colidx) + unsafe_dotcol(e, P, colidx) == 2)
                 unsafe_addcol!(tmp, P, colidx)
             end
         end
@@ -89,7 +93,7 @@ end
 Given a system of equations over F2, return the set
 of vectors that solve the system (perhaps more than 1
 if the system is underconstrained). system should be a
-BitArray in upper triangular form, with 1s along the diagonal
+BitArray in lower triangular form, with 1s along the diagonal
 for every nonzero row (the matrix may contain some zero rows
 for underconstrained systems).
 """
@@ -101,6 +105,7 @@ function backsolve(system)
     for rowi in n:-1:1
         # if there is not already a row here, we need to guess
         if !(solvemat[rowi, rowi])
+            @assert all(solvemat[:, rowi] .== false)
 
             # put a 1 in this slot
             solvemat[rowi, rowi] = true
@@ -181,6 +186,10 @@ by extracting the sub-matrix corresponding to s and checking that
 as a generator matrix its codewords are -1 or 0 mod 4
 """
 function checkkey(P, s)
+    if !isa(s, GF2Array)
+        s = GF2Array(s)
+    end
+
     Ns = 40
     n = size(P)[1]
     ncol = size(P)[2]

@@ -62,7 +62,7 @@ size(x::GF2Array) = x.dims
 Inner product modulo 2
 """
 function dot(a::GF2Vector, b::GF2Vector)
-    length(a) != length(b) && throw(ArgumentError("vectors have different lengths $(length(a)) and $(length(b))"))
+    length(a) != length(b) && throw(DimensionMismatch("vectors have different lengths $(length(a)) and $(length(b))"))
     t = zero(UInt64)
     @inbounds for i in 1:length(a.chunks)
         t ⊻= a.chunks[i] & b.chunks[i]
@@ -76,7 +76,7 @@ end
 Dot of column i of matrix b to a
 """
 function dotcol(a::GF2Vector, b::GF2Matrix, i::Int)
-    length(a) != size(b)[1] && throw(ArgumentError("dimension mismatch: vector $(length(A)) and matrix $(size(B))"))
+    length(a) != size(b)[1] && throw(DimensionMismatch("vector $(length(a)) and matrix $(size(b))"))
     @boundscheck i > size(b)[2] && throw(BoundsError("column index $i greater than number of columns $(size(b)[2])"))
     unsafe_dotcol(a, b, i)
 end
@@ -99,7 +99,7 @@ end
 In-place addition of vector b to a
 """
 function add!(a::GF2Vector, b::GF2Vector)
-    length(a) != length(b) && throw(ArgumentError("vectors have different lengths $(length(A)) and $(length(B))"))
+    length(a) != length(b) && throw(DimensionMismatch("vectors have different lengths $(length(a)) and $(length(b))"))
     unsafe_add!(a, b)
 end
 
@@ -116,43 +116,13 @@ function unsafe_add!(a::GF2Vector, b::GF2Vector)
 end
 
 """
-    add!(a, b)
-
-In-place addition of vector b to a
-"""
-function add!(a::GF2Vector, b::SubArray{Bool, 1, <:GF2Array, I, L}) where I where L
-    length(a) != length(b) && throw(ArgumentError("vectors have different lengths $(length(A)) and $(length(B))"))
-    unsafe_add!(a, b)
-end
-
-"""
-    unsafe_add!(a, b)
-
-In-place addition of vector b to a, without checking that they are the same size
-"""
-function unsafe_add!(a::GF2Vector, b::SubArray{Bool, 1, <:GF2Array, I, L}) where I where L
-    chunkoffset = getchunkidx(b.offset1, size(a.chunks)[1], length(b))
-    @inbounds for i in 1:length(a.chunks)
-        a.chunks[i] ⊻= b.parent.chunks[i + chunkoffset]
-    end
-    return a
-end
-
-"""
-compute which chunk of the parent to read from
-"""
-@inline function getchunkidx(i::Int, nc::Int, d1::Int)
-     return ((i-1)÷d1)*nc + 1
-end
-
-"""
     addcol!(a, b, i)
 
 In-place addition of column i of matrix b to a
 """
 function addcol!(a::GF2Vector, b::GF2Matrix, i::Int)
-    length(a) != size(b)[1] && throw(ArgumentError("dimension mismatch: vector $(length(A)) and matrix $(size(B))"))
-    @boundscheck i > size(b)[2] && throw(BoundsError("column index $i greater than number of columns $(size(b)[2])"))
+    length(a) != size(b)[1] && throw(DimensionMismatch("vector $(length(a)) and matrix $(size(b))"))
+    @boundscheck (i < 1 || i > size(b)[2]) && throw(BoundsError("column index $i out of bounds for number of columns $(size(b)[2])"))
     unsafe_addcol!(a, b, i)
 end
 
@@ -173,9 +143,9 @@ end
 In-place addition of column j of A to column i of the same matrix
 """
 function addcol!(A::GF2Matrix, i::Int, j::Int)
-    @boundscheck i > size(b)[2] && throw(BoundsError("column index i=$i greater than number of columns $(size(b)[2])"))
-    @boundscheck j > size(b)[2] && throw(BoundsError("column index j=$j greater than number of columns $(size(b)[2])"))
-    unsafe_addcol!(A, b, i)
+    @boundscheck (i < 1 || i > size(A)[2]) && throw(BoundsError("column index i=$i greater than number of columns $(size(A)[2])"))
+    @boundscheck (j < 1 || j > size(A)[2]) && throw(BoundsError("column index j=$j greater than number of columns $(size(A)[2])"))
+    unsafe_addcol!(A, i, j)
 end
 
 """
@@ -205,7 +175,7 @@ function GF2Array{N}(a::BitArray{N}) where N
     idx = 1
     @inbounds begin
         for i = 1:length(r.chunks)
-            stop = i%nc == 0 ? d1%64 : 64
+            stop = i%nc == 0 ? ((d1-1)%64)+1 : 64
             c = UInt64(0)
             for j = 0:stop-1
                 c |= UInt64(a[idx]) << j
