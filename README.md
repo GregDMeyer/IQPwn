@@ -2,7 +2,7 @@
 
 **tl;dr** This repository implements the algorithms in [this paper [link forthcoming]] for forging quantum data to pass the "test of quantumness" from [this paper](https://royalsocietypublishing.org/doi/10.1098/rspa.2008.0443).
 
-![](/home/greg/Dropbox/Berkeley_lab/IQP/code/julia/media/iqpwn.gif) 
+<img src="media/iqpwn.gif" width="524">
 (... slightly embellished for dramatic effect)
 
 ---
