@@ -1,0 +1,69 @@
+#!/usr/bin/env python3
+
+'''
+Given a secret key in base64 format, convert it to an ASCII binary string
+
+Most of the work here is because it is sometimes ambiguous what the key length
+should be in binary, so we need to be careful about getting it right.
+'''
+
+from sys import argv
+from base64 import b64decode
+
+def main():
+    if len(argv) != 2:
+        print("Provide the base64 string as the first argument.")
+
+    keys = convert(argv[1])
+    for q, key in keys:
+        print("q = {}: {}".format(q, key))
+
+def convert(s):
+    b = b64decode(s)
+    x = int.from_bytes(b, byteorder='big')
+    qs = get_q(8*len(b))
+
+    keys = []
+    for q in qs:
+        keylen = (q+3)//2
+        if x.bit_length() > keylen:
+            continue
+        key = bin(x)[2:].zfill(keylen)
+        keys.append((q, key))
+
+    return keys
+
+def get_q(nbits):
+    '''
+    Get values of the prime q that are compatible with this length
+    of key from base64
+    '''
+    qs = []
+    for d in [3, 7]:
+        keylen = nbits-d
+        q = keylen*2-3
+        if qprime(q):
+            qs.append(q)
+    return qs
+
+def qprime(q):
+    '''
+    There are two possible values of q for a given base64 key length;
+    check whether a possible value of q is prime and therefore valid.
+    '''
+    if q == 7:
+        return True
+    if q%3 == 0:
+        return False
+    r = int(q**0.5)
+    f = 5
+    while f <= r:
+        if q%f == 0:
+            return False
+        if q%(f+2) == 0:
+            return False
+        f += 6
+    return True
+
+if __name__ == '__main__':
+    main()
