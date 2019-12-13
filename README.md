@@ -1,13 +1,13 @@
 # IQPwn
 
-**tl;dr** This repository implements the algorithms in [this paper [link forthcoming]] for forging quantum data to pass the "test of quantumness" from [this paper](https://royalsocietypublishing.org/doi/10.1098/rspa.2008.0443).
+**tl;dr** This repository implements the algorithms in [this paper](https://arxiv.org/abs/1912.05547) for forging quantum data to pass the "test of quantumness" from [this paper](https://royalsocietypublishing.org/doi/10.1098/rspa.2008.0443).
 
 <img src="media/iqpwn.gif" width="524">
 (... slightly embellished for dramatic effect)
 
 ---
 
-In [[SB2009]](https://royalsocietypublishing.org/doi/10.1098/rspa.2008.0443), a cryptographic protocol is presented for testing the quantum capabilities of an untrusted party. The authors show that under certain cryptographic assumptions, a prover can only pass the interactive test if they are IQP-capable (roughly, if they can run quantum circuits). The code in this repository breaks those assumptions. In particular, this repository contains an implementation of the algorithms described  [here [link forthcoming]] for extracting the protocol's secret key. It also contains timing code to generate the plots in the paper.
+In [[SB2009]](https://royalsocietypublishing.org/doi/10.1098/rspa.2008.0443), a cryptographic protocol is presented for testing the quantum capabilities of an untrusted party. The authors show that under certain cryptographic assumptions, a prover can only pass the interactive test if they are IQP-capable (roughly, if they can run quantum circuits). The code in this repository breaks those assumptions. In particular, this repository contains an implementation of the algorithms described [here](https://arxiv.org/abs/1912.05547) for extracting the protocol's secret key. It also contains timing code to generate the plots in the paper.
 
 ## Requirements
 
