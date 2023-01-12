@@ -183,7 +183,10 @@ end
 
 Check that a possibly correct key s is correct for the program P,
 by extracting the sub-matrix corresponding to s and checking that
-as a generator matrix its codewords are -1 or 0 mod 4
+as a generator matrix its codewords have weight -1 or 0 mod 4
+
+For speed we just check 40 random codewords; in practice this
+establishes with overwhelming probability whether the key is correct
 """
 function checkkey(P, s)
     if !isa(s, GF2Array)
