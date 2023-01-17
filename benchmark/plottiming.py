@@ -48,7 +48,7 @@ def plot_data(ns, ts, errlows, errhighs):
     ax.set_xscale('log')
     ax.set_yscale('log')
 
-    ax.set_xlabel('Problem size (number of qubits)')
+    ax.set_xlabel('Problem size $n$ (qubit count)')
     ax.set_ylabel('Solve time [s]')
 
     # add more descriptive ticks
@@ -59,7 +59,7 @@ def plot_data(ns, ts, errlows, errhighs):
 
     ax.legend()
 
-    #plt.savefig("../../../paper/solvetime.pdf")
+    plt.savefig("solvetime.pdf")
     plt.show()
 
 def main():
