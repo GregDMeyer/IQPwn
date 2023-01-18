@@ -2,6 +2,7 @@
 import numpy as np
 
 from matplotlib import pyplot as plt
+plt.style.use('norm.mplstyle')
 
 def read_cand_data(filename):
     with open(filename) as f:
@@ -22,15 +23,15 @@ def read_timing_data(filename):
     return ns, candkeys
 
 def bin_data(ary):
-    logary = np.log2(ary).astype(np.int)
+    logary = np.log2(ary).astype(int)
     vals, counts = np.unique(logary, return_counts=True)
 
     # make sure we didn't skip any values
     if len(vals) != vals[-1]+1:
-        rtn = np.zeros(vals[-1]+1, dtype=np.float)
+        rtn = np.zeros(vals[-1]+1, dtype=float)
         rtn[vals] = counts
     else:
-        rtn = counts.astype(np.float)
+        rtn = counts.astype(float)
 
     errs = np.sqrt(rtn)
 
@@ -91,14 +92,14 @@ def plot_data(reg, hard, ns, candkeys):
                 verticalalignment='top',
                 transform=nkeyax.transAxes)
 
-    rankax.text(0.02, 0.98, '(b)',
+    rankax.text(0.02, 0.94, '(b)',
                 horizontalalignment='left',
                 verticalalignment='top',
                 transform=rankax.transAxes)
 
     plt.tight_layout()
 
-    #plt.savefig('../../../paper/candkeys.pdf')
+    plt.savefig('candkeys.pdf')
 
     plt.show()
 

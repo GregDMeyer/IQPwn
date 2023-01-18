@@ -1,6 +1,7 @@
 
 import matplotlib
 from matplotlib import pyplot as plt
+plt.style.use('norm.mplstyle')
 
 def read_data(filename="timing.csv"):
     ns = []

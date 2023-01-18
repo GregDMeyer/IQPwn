@@ -1,0 +1,36 @@
+axes.linewidth      : 1.5
+
+xtick.top            : True
+ytick.right	     : True
+
+xtick.major.size     : 8
+xtick.major.width    : 1.5
+xtick.minor.size    : 4
+xtick.minor.width    : 1
+#xtick.labelsize      : 20
+xtick.direction      : in
+
+ytick.major.size     : 8
+ytick.major.width    : 1.5
+ytick.minor.size    : 4
+ytick.minor.width    : 1
+#ytick.labelsize      : 20
+ytick.direction      : in
+
+#font.sans-serif     : DejaVu Sans, Bitstream Vera Sans, Lucida Grande, Verdana, Geneva, Lucid, Arial, Helvetica, Avant Garde, Neue Helvetica, sans-serif
+#font.family         : Helvetica Neue
+
+#text.usetex        : true
+
+font.size : 12
+
+errorbar.capsize : 4
+
+
+savefig.transparent : True
+
+#figure.figsize : 6.0, 5.0
+#mathtext.fontset: cm
+#mathtext.rm : serif
+
+#svg.fonttype : none
