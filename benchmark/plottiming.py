@@ -20,7 +20,7 @@ def read_data(filename="timing.csv"):
     return ns, ts, errlows, errhighs
 
 def plot_data(ns, ts, errlows, errhighs):
-    f, ax = plt.subplots(figsize=(3.5, 3))
+    f, ax = plt.subplots(figsize=(4.7, 4))
 
     ax.plot(ns, ts,
             marker='o',

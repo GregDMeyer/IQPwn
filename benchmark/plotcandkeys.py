@@ -80,7 +80,7 @@ def plot_hist(ax, reg, hard):
 def plot_data(reg, hard, ns, candkeys):
 
     f, (nkeyax, rankax) = plt.subplots(2, 1,
-                                       figsize=(3,4),
+                                       figsize=(4,5.3),
                                        gridspec_kw={'height_ratios': [1, 3]})
 
     plot_candkeys(nkeyax, ns, candkeys)
